@@ -316,6 +316,7 @@
 				A53DB3641EE95C5C007844C7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

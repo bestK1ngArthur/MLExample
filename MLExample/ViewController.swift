@@ -22,9 +22,22 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         picker.delegate = self
         label.text = "Choose image ☝️"
+        
+        // Check if device has camera
+        if !UIImagePickerController.isSourceTypeAvailable(.camera) {
+            navigationItem.rightBarButtonItem?.isEnabled = false
+        }
     }
     
     func presentPicker(type:  UIImagePickerControllerSourceType) {
+        
+        // Check if device has camera
+        if !UIImagePickerController.isSourceTypeAvailable(.camera) && type == .camera {
+            label.text = "📸😵"
+            return
+        }
+        
+        // Set picker
         picker.sourceType = type
         picker.allowsEditing = false
         self.present(picker, animated: true, completion: nil)
@@ -77,10 +90,13 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                 
                 // Update UI on main queue
                 DispatchQueue.main.async { [weak self] in
+                    self?.imageView.deleteBlurEffect()
                     self?.label.text = text
                     self?.imageView.image = image
                 }
             })
+            
+            imageView.addBlurEffect()
         }
         
         picker.dismiss(animated: true, completion: nil)
@@ -88,6 +104,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         label.text = "😱"
+        picker.dismiss(animated: true, completion: nil)
     }
     
     //MARK: Actions
@@ -98,5 +115,25 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     @IBAction func libraryAction(_ sender: Any) {
         self.presentPicker(type: .photoLibrary)
+    }
+}
+
+extension UIImageView {
+    
+    func addBlurEffect() {
+        let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.light)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = self.bounds
+        
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight] // for supporting device rotation
+        self.addSubview(blurEffectView)
+    }
+    
+    func deleteBlurEffect() {
+        for view in self.subviews {
+            if view.isKind(of: UIVisualEffectView.self) {
+                view.removeFromSuperview()
+            }
+        }
     }
 }
